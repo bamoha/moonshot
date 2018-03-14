@@ -37,9 +37,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use('public', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({ secret: 'thesessionsecretxyz', saveUninitialised:true,
+app.use(session({ secret: 'thesessionsecretxyz', saveUninitialized:true,
 resave:true })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
@@ -47,6 +47,17 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 app.use('/', index);
 app.use('/admin', admin);
+
+passport.serializeUser(function(user, done){
+    done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done){
+    User.getUserById(id, function(err, user){
+        done(err, user);
+    });
+});
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
